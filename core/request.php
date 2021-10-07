@@ -1,5 +1,6 @@
 <?php
 	session_start();
+	date_default_timezone_set('America/Mexico_City');
 
 	header("Access-Control-Allow-Origin: *");
 	header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
@@ -8,25 +9,28 @@
 		parse_str(file_get_contents("php://input"), $put_vars);
 
 		if($put_vars['_method'] == 'GET'){
-			$logFile = $put_vars['logFile'];
+			$logFile = 'logs/log_' . $put_vars['email'] .'.html';
 
-			if(file_exists($logFile) && filesize($logFile) > 0){
-				$contents = file_get_contents($logFile);
+			if(file_exists($logFile) && filesize($logFile) > 0)
+				echo file_get_contents($logFile);
 
-				header('HTTP/1.1 200 OK');
-				exit( $contents );
-			}
+			header('HTTP/1.1 200 OK');
+			exit();			
 		}else if($put_vars['_method'] == 'POST'){
+			$email   = $put_vars['email'];
 			$message = '
 				<div class="">
 					<span class="">'. date("g:i A") . '</span>
-					<b class="">'. $mail .'</b>'.
-					stripslashes(htmlspecialchars($message)). '
+					<b class="">'. $email .'</b>'.
+					stripslashes(htmlspecialchars($put_vars["message"])). '
 					<br>
 				</div>
 			';
 
-			file_put_contents('logs/filename.html', $text_message, FILE_APPEND | LOCK_EX);
+			file_put_contents('logs/log_' . $email .'.html', $message, FILE_APPEND | LOCK_EX);
+
+			header('HTTP/1.1 200 OK');
+			exit();
 		}
 	}
 

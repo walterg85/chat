@@ -97,3 +97,12 @@ button {
 #check {
     display: none !important
 }
+
+#chatLog {
+    text-align: left;
+    margin: 0 auto;
+    padding: 10px;
+    height: 300px;
+    width: 100%;
+    overflow: auto;
+}
