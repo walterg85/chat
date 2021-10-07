@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <!-- Chat CSS -->
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=1.1">
 
     <title>Chat Support</title>
 </head>
@@ -26,7 +26,8 @@
         </div>
         <div class="text-center p-2">
             <span class="lblWelcome">Please fill out the form to start chat!</span>
-            <iframe id="frmLogs" class="d-none" title="Historial chat" width="100%" height="350" src=""></iframe>
+            <!-- <iframe id="frmLogs" class="d-none" title="Historial chat" width="100%" height="350" src=""></iframe> -->
+            <div id="chatLog" class="d-none" width="100%"></div>
         </div>
         <div class="chat-form">
             <div id="divRegistro">
@@ -54,22 +55,43 @@
             $(".lblWelcome").addClass("d-none");
             $("#divRegistro").addClass("d-none");
             $("#divConversasion").removeClass("d-none");
-            $("#frmLogs").removeClass("d-none");
+            $("#chatLog").removeClass("d-none");
         });
 
         $("#btnSendmessage").on("click", function(){
             let objData = {
                 message: $("#inputNewMessage").val(),
-                client: $("#inputMail").val(),
+                email: $("#inputMail").val(),
+                name: $("#inputName").val(),
                 _method: "POST"
             };
 
             $.post("core/request.php", objData);
             $("#inputNewMessage").val("");
 
+            loadLog();
+
             return false;            
         });
     });
+
+    function loadLog(){
+        let objData = {
+            email: $("#inputMail").val(),
+            name: $("#inputName").val(),
+            _method: "GET"
+        },
+        oldscrollHeight = $("#chatLog")[0].scrollHeight - 20;
+
+        $.post("core/request.php", objData, function(result) {
+            // $("#frmLogs").attr("src", `data:text/html;charset=utf-8,${escape(result)}`);
+            $("#chatLog").html(result);
+
+            let newscrollHeight = $("#chatLog")[0].scrollHeight - 20;
+            if(newscrollHeight > oldscrollHeight)
+                $("#chatLog").animate({ scrollTop: newscrollHeight }, 'normal');
+        });
+    }
     </script>
 </body>
 </html>
