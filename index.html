@@ -1,22 +1,44 @@
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-uWxY/CJNBR+1zjPWmfnSnVxwRheevXITnMqoEIeG1LJrdI0GlVs/9cVSyPYXdcSF" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css">
+
+    <!-- Icons CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Chat CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
 
     <title>Chat Support</title>
-  </head>
-  <body>
+</head>
+<body oncontextmenu='return false' class='snippet-body'>
     <h1>Welcome to chat support!</h1>
 
+    <input type="checkbox" id="check"><label class="chat-btn" for="check"><i class="fa fa-commenting-o comment"></i><i class="fa fa-close close"></i></label>
+    <div class="wrapper">
+        <div class="header">
+            <h6>Let's Chat - Online</h6>
+        </div>
+        <div class="text-center p-2">
+            <span>Please fill out the form to start chat!</span> 
+        </div>
+        <div class="chat-form">
+            <input type="text" class="form-control" placeholder="Name">
+            <input type="text" class="form-control" placeholder="Email">
+            <textarea class="form-control" placeholder="Your Text Message"></textarea>
+            <button class="btn btn-success btn-block">Submit</button>
+        </div>
+    </div>
 
     <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-kQtW33rZJAHjgefvhyyzcGF3C5TFyBQBA13V1RKPf4uH+bwyzQxZ6CmMZHmNBEfJ" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    
-  </body>
+    <!-- Jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
+</body>
 </html>
