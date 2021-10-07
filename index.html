@@ -58,7 +58,16 @@
         });
 
         $("#btnSendmessage").on("click", function(){
-            
+            let objData = {
+                message: $("#inputNewMessage").val(),
+                client: $("#inputMail").val(),
+                _method: "POST"
+            };
+
+            $.post("core/request.php", objData);
+            $("#inputNewMessage").val("");
+
+            return false;            
         });
     });
     </script>
