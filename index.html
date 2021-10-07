@@ -34,11 +34,11 @@
                 <input type="text" class="form-control" placeholder="Name" id="inputName">
                 <input type="text" class="form-control" placeholder="Email" id="inputMail">
                 <textarea class="form-control" placeholder="Your Text Message" id="inputInitialMessage"></textarea>
-                <button class="btn btn-success btn-block" id="btnStart">Submit</button>
+                <button class="btn btn-success btn-block pull-right" id="btnStart">Submit</button>
             </div>
             <div id="divConversasion" class="d-none">
                 <textarea class="form-control" placeholder="Your Message" id="inputNewMessage"></textarea>
-                <button class="btn btn-success btn-block" id="btnSendmessage">Send</button>
+                <button class="btn btn-success btn-block pull-right" id="btnSendmessage">Send</button>
             </div>
         </div>
     </div>
@@ -56,24 +56,36 @@
             $("#divRegistro").addClass("d-none");
             $("#divConversasion").removeClass("d-none");
             $("#chatLog").removeClass("d-none");
+
+            sendMessage($("#inputInitialMessage").val(), 1);
         });
 
         $("#btnSendmessage").on("click", function(){
-            let objData = {
-                message: $("#inputNewMessage").val(),
-                email: $("#inputMail").val(),
-                name: $("#inputName").val(),
-                _method: "POST"
-            };
-
-            $.post("core/request.php", objData);
-            $("#inputNewMessage").val("");
-
-            loadLog();
-
-            return false;            
+            sendMessage($("#inputNewMessage").val(), 2);
         });
     });
+
+    function sendMessage(strMessage, round){
+        let objData = {
+            message: strMessage,
+            email: $("#inputMail").val(),
+            name: $("#inputName").val(),
+            round: round,
+            _method: "POST"
+        };
+
+        $.post("core/request.php", objData);
+
+        if(round == 1){
+            $("#inputInitialMessage").val("");
+            setInterval(loadLog, 2500);
+        }else{
+            $("#inputNewMessage").val("");
+        }
+
+        loadLog();
+        return false;
+    }
 
     function loadLog(){
         let objData = {
