@@ -45,7 +45,15 @@
                 </a>
             </div>
             <div class="col-8 d-none" id="chatDetails">
+
+                <div class="btn-group ms-2 mb-2" role="group">
+                    <button type="button" class="btn btn-outline-secondary"><i class="fa fa-power-off"></i> Finish chatting</button>
+                    <button type="button" class="btn btn-outline-secondary"><i class="fa fa-bookmark-o"></i> Move to file</button>
+                    <button type="button" class="btn btn-outline-secondary"><i class="fa fa-envelope-open-o"></i> Send by email</button>
+                </div>                
+
                 <div id="chatLog" class=""></div>
+
                 <form class="row g-3">
                     <div class="col-10">
                         <label for="txtMessage" class="form-label">New message</label>
@@ -138,12 +146,20 @@
             let oldscrollHeight = $("#chatLog")[0].scrollHeight - 20;
 
             $.post("../core/admRequest.php", chatActive, function(result) {
-                $("#chatLog").html(result);
+                $("#chatLog").html(result.html);
                 $("#chatDetails").removeClass("d-none");
 
                 let newscrollHeight = $("#chatLog")[0].scrollHeight - 20;
                 if(newscrollHeight > oldscrollHeight)
                     $("#chatLog").animate({ scrollTop: newscrollHeight }, 'normal');
+
+                if(result.closed){
+                    $("#txtMessage").attr("disabled", "disabled");
+                    $("#btnSend").attr("disabled", "disabled");
+                }else{
+                    $("#txtMessage").removeAttr("disabled");
+                    $("#btnSend").removeAttr("disabled");
+                }
             });
         }
 
