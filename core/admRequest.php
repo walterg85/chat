@@ -1,6 +1,5 @@
 <?php
 	session_start();
-	date_default_timezone_set('America/Mexico_City');
 
 	header("Access-Control-Allow-Origin: *");
 	header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
@@ -18,7 +17,9 @@
 						$contenido = file_get_contents($value);
 
 						$doc 	= new DOMDocument;
+						libxml_use_internal_errors(true);
 						$doc->loadHTML($contenido);
+						libxml_clear_errors();
 						$xpath 	= new DOMXpath($doc);
 						$name 	= $xpath->query('//input[@type="hidden" and @id = "inputName"]/@value');
 						$mail 	= $xpath->query('//input[@type="hidden" and @id = "inputMail"]/@value');
@@ -56,7 +57,7 @@
 					<h6 class="alert-heading">'.$put_vars['name'].'</h6>
 					<p>'. stripslashes(htmlspecialchars($put_vars["message"])) .'.</p>
 					<hr class="m-0">
-					<p class="mb-0 small">'. date("g:i A") .' | '. $email .'</p>
+					<p class="mb-0 small">'. $put_vars["_time"] .' | '. $email .'</p>
 				</div>
 			';
 
@@ -67,7 +68,7 @@
 						<p class="small">I am a virtual assistant, In a moment an agent will take your case, do not hesitate to continue writing.</p>
 						</blockquote>
 						<figcaption class="blockquote-footer">
-						'. date("g:i A") .' | Virtual assistant
+						'. $put_vars["_time"] .' | Virtual assistant
 						</figcaption>
 					</figure>
 				';
