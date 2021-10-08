@@ -50,30 +50,20 @@
 				exit();	
 			}
 		}else if($put_vars['_method'] == 'POST'){
-			$email   = $put_vars['email'];
-			$round   = $put_vars['round'];
+			$email   = 'support@itelatlas.com';
+			$name	   = 'Technical support';
 			$message = '
-				<div class="alert alert-info" role="alert">
-					<h6 class="alert-heading">'.$put_vars['name'].'</h6>
-					<p>'. stripslashes(htmlspecialchars($put_vars["message"])) .'.</p>
-					<hr class="m-0">
-					<p class="mb-0 small">'. $put_vars["_time"] .' | '. $email .'</p>
-				</div>
+				<figure class="text-end">
+					<blockquote class="blockquote">
+					<p class="small">'. stripslashes(htmlspecialchars($put_vars["message"])) .'</p>
+					</blockquote>
+					<figcaption class="blockquote-footer">
+					'. $put_vars["_time"] .' | '. $name .'
+					</figcaption>
+				</figure>
 			';
 
-			if($round == 1)
-				$message .= '
-					<figure class="text-end">
-						<blockquote class="blockquote">
-						<p class="small">I am a virtual assistant, In a moment an agent will take your case, do not hesitate to continue writing.</p>
-						</blockquote>
-						<figcaption class="blockquote-footer">
-						'. $put_vars["_time"] .' | Virtual assistant
-						</figcaption>
-					</figure>
-				';
-
-			file_put_contents('logs/log_' . $email .'.html', $message, FILE_APPEND | LOCK_EX);
+			file_put_contents($put_vars['_file'], $message, FILE_APPEND | LOCK_EX);
 
 			header('HTTP/1.1 200 OK');
 			exit();
@@ -81,20 +71,18 @@
 	}
 
 	function getChatsLogs($dir){
-       $result = array();
-       $cdir   = scandir($dir);
+		$result = array();
+		$cdir   = scandir($dir);
 
-       foreach ($cdir as $key => $value)
-       {
-          if (!in_array($value,array(".","..")))
-          {
-             if (!is_dir($dir . DIRECTORY_SEPARATOR . $value))
-				$result[] = $dir . $value;
-          }
-       }
+		foreach ($cdir as $key => $value){
+			if (!in_array($value,array(".",".."))){
+				if (!is_dir($dir . DIRECTORY_SEPARATOR . $value))
+					$result[] = $dir . $value;
+			}
+		}
 
-       return $result;
-    }
+		return $result;
+	}
 
 	header('HTTP/1.1 400 Bad Request');
 	header("Content-Type: application/json; charset=UTF-8");

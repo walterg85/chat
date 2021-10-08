@@ -68,58 +68,100 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script type="text/javascript">
-    $(document).ready(function(){
-        loadChats();
-    });
+        var chatActive = "",
+            refreshLog = null;
 
-    function loadChats(){
-        let objData = {
-            _method: "GET",
-            _action: "getList"
-        };
+        $(document).ready(function(){
+            loadChats();
+            setInterval(loadChats, 2500);
 
-        $.post("../core/admRequest.php", objData, function(result) {
-            if(result.length > 0){
-                $("#chatList").html("");
-                $.each( result, function( index, item){
-                    let chat = $(".itemClone").clone();
+            $(document).on("click", ".itemChatList", function(){
+                if(refreshLog)
+                    clearInterval(refreshLog);
 
-                    chat.find(".cliName").html(item.name);
-                    chat.find(".cliDate").html(item.date);
-                    chat.find(".cliMessage").html(item.message);
-                    chat.find(".cliMail").html(item.mail);
+                chatActive = {
+                    _method: "GET",
+                    _file: $(this).data("chatlog"),
+                    _action: "getChat"
+                };
 
-                    chat.data("chatlog", item.logFile);
+                loadLog();
+                refreshLog = setInterval(loadLog, 2500);
 
-                    chat.removeClass("itemClone d-none");
-                    $(chat).appendTo("#chatList");
-                });
+                $(".active").find(".txtm").addClass("text-muted");
+                $(".active").removeClass("active");
 
-                $(".itemChatList").on("click", function(){
-                    objData = {
-                        _method: "GET",
-                        _file: $(this).data("chatlog"),
-                        _action: "getChat"
-                    };
+                $(this).addClass("active");
+                $(this).find(".txtm").removeClass("text-muted");
+            });
 
-                    $.post("../core/admRequest.php", objData, function(result) {
-                        $("#chatLog").html(result);
-                        $("#chatDetails").removeClass("d-none");
-
-                        $("#chatLog").animate({ scrollTop: 1000 }, 'normal');
-                    });
-
-                    $(".active").find(".txtm").addClass("text-muted");
-                    $(".active").removeClass("active");
-
-                    $(this).addClass("active");
-                    $(this).find(".txtm").removeClass("text-muted");
-                });
-            }else{
-                $("#chatList").html(`<p class="lead">No chats available at the moment</p>`);
-            }
+            $("#btnSend").on("click", function(){
+                sendMessage($("#txtMessage").val());
+            });
         });
-    }
+
+        function loadChats(){
+            let objData = {
+                _method: "GET",
+                _action: "getList"
+            };
+
+            $.post("../core/admRequest.php", objData, function(result) {
+                if(result.length > 0){
+                    $("#chatList").html("");
+                    $.each( result, function( index, item){
+                        let chat = $(".itemClone").clone();
+
+                        chat.find(".cliName").html(item.name);
+                        chat.find(".cliDate").html(item.date);
+                        chat.find(".cliMessage").html(item.message);
+                        chat.find(".cliMail").html(item.mail);
+
+                        chat.data("chatlog", item.logFile);
+
+                        chat.removeClass("itemClone d-none");
+
+                        if(chatActive._file == item.logFile){
+                            $(chat).addClass("active");
+                            $(chat).find(".txtm").removeClass("text-muted");
+                        }
+
+                        $(chat).appendTo("#chatList");
+                    });
+                }else{
+                    $("#chatList").html(`<p class="lead">No chats available at the moment</p>`);
+                }
+            });
+        }
+
+        function loadLog(objData) {
+            let oldscrollHeight = $("#chatLog")[0].scrollHeight - 20;
+
+            $.post("../core/admRequest.php", chatActive, function(result) {
+                $("#chatLog").html(result);
+                $("#chatDetails").removeClass("d-none");
+
+                let newscrollHeight = $("#chatLog")[0].scrollHeight - 20;
+                if(newscrollHeight > oldscrollHeight)
+                    $("#chatLog").animate({ scrollTop: newscrollHeight }, 'normal');
+            });
+        }
+
+        function sendMessage(strMessage){
+            let dt = new Date(),
+                time = dt.getHours() + ":" + dt.getMinutes();
+
+            let objData = {
+                message: strMessage,
+                _method: "POST",
+                _time: time,
+                _file: chatActive._file
+            };
+
+            $.post("../core/admRequest.php", objData);
+            $("#txtMessage").val("");
+            return false;
+        }
     </script>
 </body>
 </html>
