@@ -16,7 +16,6 @@
 <body>
 
     <div class="container">
-
         <nav class="navbar navbar-light bg-light mb-5">
             <div class="container-fluid">
                 <span class="navbar-brand mb-0 h1">Welcome to chat support!</span>
@@ -25,36 +24,19 @@
 
         <div class="row">
             <div class="col-4">
-                <div class="list-group">
-                    <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">List group item heading <span class="badge bg-secondary rounded-pill">14</span></h5>
-                            <small>3 days ago</small>
-                        </div>
-                        <p class="mb-1">Some placeholder content in a paragraph.</p>
-                        <small>And some small print.</small>
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">List group item heading <span class="badge bg-danger rounded-pill">New</span></h5>
-                            <small class="text-muted">3 days ago</small>
-                        </div>
-                        <p class="mb-1">Some placeholder content in a paragraph.</p>
-                        <small class="text-muted">And some muted small print.</small>
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">List group item heading</h5>
-                            <small class="text-muted">3 days ago</small>
-                        </div>
-                        <p class="mb-1">Some placeholder content in a paragraph.</p>
-                        <small class="text-muted">And some muted small print.</small>
-                    </a>
-                </div>
+                <div class="list-group" id="chatList"></div>
+                <!-- Item chat to clone  -->
+                <a href="javascript:void(0);" class="list-group-item list-group-item-action d-none itemClone">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1 cliName">Name</h5>
+                        <small class="text-muted cliDate">3 days ago</small>
+                    </div>
+                    <p class="mb-1 cliMessage">Message.</p>
+                    <small class="text-muted cliMail">Mail.</small>
+                </a>
             </div>
-            <div class="col-8">
-                <iframe id="frmLogs" class="" title="Historial chat" width="100%" height="350" src=""></iframe>
-
+            <div class="col-8 d-none" id="chatDetails">
+                <div id="chatLog" class="d-none" width="100%"></div>
                 <form class="row g-3">
                     <div class="col-10">
                         <label for="txtMessage" class="form-label">Message</label>
@@ -78,7 +60,33 @@
 
     <script type="text/javascript">
     $(document).ready(function(){
+        loadChats();
     });
+
+    function loadChats(){
+        let objData = {
+            _method: "GET"
+        };
+
+        $.post("../core/admRequest.php", objData, function(result) {
+            if(result.length > 0){
+                $("#chatList").html("");
+                $.each( result, function( index, item){
+                    let chat = $(".itemClone").clone();
+
+                    chat.find(".cliName").html(item.name);
+                    chat.find(".cliDate").html(item.date);
+                    chat.find(".cliMessage").html(item.message);
+                    chat.find(".cliMail").html(item.mail);
+
+                    chat.removeClass("itemClone d-none");
+                    $(chat).appendTo("#chatList");
+                });
+            }else{
+                $("#chatList").html(`<p class="lead">No chats available at the moment</p>`);
+            }
+        });
+    }
     </script>
 </body>
 </html>

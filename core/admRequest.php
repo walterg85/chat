@@ -9,19 +9,41 @@
 		parse_str(file_get_contents("php://input"), $put_vars);
 
 		if($put_vars['_method'] == 'GET'){
-			$logFile = 'logs/log_' . $put_vars['email'] .'.html';
+			$chatLogs = getChatsLogs('logs/');
+			$data = [];
 
-			if(file_exists($logFile) && filesize($logFile) > 0)
-				echo file_get_contents($logFile);
+			foreach ($chatLogs as $key => $value) {
+				if(file_exists($value) && filesize($value) > 0){
+					$contenido = file_get_contents($value);
+
+					$doc 	= new DOMDocument;
+					$doc->loadHTML($contenido);
+					$xpath 	= new DOMXpath($doc);
+					$name 	= $xpath->query('//input[@type="hidden" and @id = "inputName"]/@value');
+					$mail 	= $xpath->query('//input[@type="hidden" and @id = "inputMail"]/@value');
+					$msg 	= $xpath->query('//input[@type="hidden" and @id = "inputQuestion"]/@value');
+					$date 	= $xpath->query('//input[@type="hidden" and @id = "inputDate"]/@value');
+
+					$data[] = array(
+						'logFile' 	=> $value,
+						'name' 		=> $name[0]->nodeValue,
+						'mail' 		=> $mail[0]->nodeValue,
+						'message' 	=> $msg[0]->nodeValue,
+						'date' 		=> $date[0]->nodeValue,
+					);
+				}
+			}
 
 			header('HTTP/1.1 200 OK');
-			exit();			
+			header("Content-Type: application/json; charset=UTF-8");
+
+			exit(json_encode($data));			
 		}else if($put_vars['_method'] == 'POST'){
 			$email   = $put_vars['email'];
 			$round   = $put_vars['round'];
 			$message = '
 				<div class="alert alert-info" role="alert">
-					<h6 class="alert-heading">'. $put_vars['name'] .'</h6>
+					<h6 class="alert-heading">'.$put_vars['name'].'</h6>
 					<p>'. stripslashes(htmlspecialchars($put_vars["message"])) .'.</p>
 					<hr class="m-0">
 					<p class="mb-0 small">'. date("g:i A") .' | '. $email .'</p>
@@ -30,11 +52,6 @@
 
 			if($round == 1)
 				$message .= '
-					<input type="hidden" id="inputName" value="'. $put_vars['name'] .'" />
-					<input type="hidden" id="inputMail" value="'. $email .'" />
-					<input type="hidden" id="inputQuestion" value="'. stripslashes(htmlspecialchars($put_vars["message"])) .'" />
-					<input type="hidden" id="inputDate" value="'. date("g:i A") .'" />
-
 					<figure class="text-end">
 						<blockquote class="blockquote">
 						<p class="small">I am a virtual assistant, In a moment an agent will take your case, do not hesitate to continue writing.</p>
@@ -51,6 +68,22 @@
 			exit();
 		}
 	}
+
+	function getChatsLogs($dir){
+       $result = array();
+       $cdir   = scandir($dir);
+
+       foreach ($cdir as $key => $value)
+       {
+          if (!in_array($value,array(".","..")))
+          {
+             if (!is_dir($dir . DIRECTORY_SEPARATOR . $value))
+				$result[] = $dir . $value;
+          }
+       }
+
+       return $result;
+    }
 
 	header('HTTP/1.1 400 Bad Request');
 	header("Content-Type: application/json; charset=UTF-8");
