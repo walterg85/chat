@@ -31,7 +31,7 @@
 							'name' 		=> $name[0]->nodeValue,
 							'mail' 		=> $mail[0]->nodeValue,
 							'message' 	=> $msg[0]->nodeValue,
-							'date' 		=> $date[0]->nodeValue,
+							'date' 		=> $date[0]->nodeValue
 						);
 					}
 				}
@@ -43,11 +43,31 @@
 			}else if($put_vars['_action'] == 'getChat'){
 				$logFile = $put_vars['_file'];
 
-				if(file_exists($logFile) && filesize($logFile) > 0)
-					echo file_get_contents($logFile);
+				$response = array(
+					'closed' => NULL,
+					'html'   => ''
+				);
+
+				if(file_exists($logFile) && filesize($logFile) > 0){
+					$contenido = file_get_contents($logFile);
+
+					$doc 	= new DOMDocument;
+					libxml_use_internal_errors(true);
+					$doc->loadHTML($contenido);
+					libxml_clear_errors();
+					$xpath 	= new DOMXpath($doc);
+					$closed	= $xpath->query('//input[@type="hidden" and @id = "inputClose"]/@value');
+
+					$response = array(
+						'closed' => ($closed[0]->nodeValue) ? $closed[0]->nodeValue : NULL,
+						'html'   => $contenido
+					);
+				}
 
 				header('HTTP/1.1 200 OK');
-				exit();	
+				header("Content-Type: application/json; charset=UTF-8");
+
+				exit(json_encode($response));
 			}
 		}else if($put_vars['_method'] == 'POST'){
 			$email   = 'support@itelatlas.com';

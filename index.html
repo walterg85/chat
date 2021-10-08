@@ -80,6 +80,19 @@
                     $("#chatLog").html("");
                     clearInterval(refreshLog);
                     localStorage.removeItem("cliData");
+
+                    let dt = new Date(),
+                        time = dt.getHours() + ":" + dt.getMinutes();
+
+                    let objData = {
+                        email: $("#inputMail").val(),
+                        name: $("#inputName").val(),
+                        _method: "POST",
+                        _action: "closeChat",
+                        _time: time
+                    };
+
+                    $.post("core/request.php", objData);
                 }
             });
 
