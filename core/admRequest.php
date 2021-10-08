@@ -9,35 +9,45 @@
 		parse_str(file_get_contents("php://input"), $put_vars);
 
 		if($put_vars['_method'] == 'GET'){
-			$chatLogs = getChatsLogs('logs/');
-			$data = [];
+			if($put_vars['_action'] == 'getList'){
+				$chatLogs = getChatsLogs('logs/');
+				$data = [];
 
-			foreach ($chatLogs as $key => $value) {
-				if(file_exists($value) && filesize($value) > 0){
-					$contenido = file_get_contents($value);
+				foreach ($chatLogs as $key => $value) {
+					if(file_exists($value) && filesize($value) > 0){
+						$contenido = file_get_contents($value);
 
-					$doc 	= new DOMDocument;
-					$doc->loadHTML($contenido);
-					$xpath 	= new DOMXpath($doc);
-					$name 	= $xpath->query('//input[@type="hidden" and @id = "inputName"]/@value');
-					$mail 	= $xpath->query('//input[@type="hidden" and @id = "inputMail"]/@value');
-					$msg 	= $xpath->query('//input[@type="hidden" and @id = "inputQuestion"]/@value');
-					$date 	= $xpath->query('//input[@type="hidden" and @id = "inputDate"]/@value');
+						$doc 	= new DOMDocument;
+						$doc->loadHTML($contenido);
+						$xpath 	= new DOMXpath($doc);
+						$name 	= $xpath->query('//input[@type="hidden" and @id = "inputName"]/@value');
+						$mail 	= $xpath->query('//input[@type="hidden" and @id = "inputMail"]/@value');
+						$msg 	= $xpath->query('//input[@type="hidden" and @id = "inputQuestion"]/@value');
+						$date 	= $xpath->query('//input[@type="hidden" and @id = "inputDate"]/@value');
 
-					$data[] = array(
-						'logFile' 	=> $value,
-						'name' 		=> $name[0]->nodeValue,
-						'mail' 		=> $mail[0]->nodeValue,
-						'message' 	=> $msg[0]->nodeValue,
-						'date' 		=> $date[0]->nodeValue,
-					);
+						$data[] = array(
+							'logFile' 	=> $value,
+							'name' 		=> $name[0]->nodeValue,
+							'mail' 		=> $mail[0]->nodeValue,
+							'message' 	=> $msg[0]->nodeValue,
+							'date' 		=> $date[0]->nodeValue,
+						);
+					}
 				}
+
+				header('HTTP/1.1 200 OK');
+				header("Content-Type: application/json; charset=UTF-8");
+
+				exit(json_encode($data));
+			}else if($put_vars['_action'] == 'getChat'){
+				$logFile = $put_vars['_file'];
+
+				if(file_exists($logFile) && filesize($logFile) > 0)
+					echo file_get_contents($logFile);
+
+				header('HTTP/1.1 200 OK');
+				exit();	
 			}
-
-			header('HTTP/1.1 200 OK');
-			header("Content-Type: application/json; charset=UTF-8");
-
-			exit(json_encode($data));			
 		}else if($put_vars['_method'] == 'POST'){
 			$email   = $put_vars['email'];
 			$round   = $put_vars['round'];
