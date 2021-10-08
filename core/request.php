@@ -18,14 +18,27 @@
 			exit();			
 		}else if($put_vars['_method'] == 'POST'){
 			$email   = $put_vars['email'];
+			$round   = $put_vars['round'];
 			$message = '
-				<div class="">
-					<span class="">'. date("g:i A") . '</span>
-					<b class="">'. $email .'</b>'.
-					stripslashes(htmlspecialchars($put_vars["message"])). '
-					<br>
+				<div class="alert alert-info" role="alert">
+					<h6 class="alert-heading">'.$put_vars['name'].'</h6>
+					<p>'. stripslashes(htmlspecialchars($put_vars["message"])) .'.</p>
+					<hr class="m-0">
+					<p class="mb-0 small">'. date("g:i A") .' | '. $email .'</p>
 				</div>
 			';
+
+			if($round == 1)
+				$message .= '
+					<figure class="text-end">
+						<blockquote class="blockquote">
+						<p class="small">I am a virtual assistant, In a moment an agent will take your case, do not hesitate to continue writing.</p>
+						</blockquote>
+						<figcaption class="blockquote-footer">
+						'. date("g:i A") .' | Virtual assistant
+						</figcaption>
+					</figure>
+				';
 
 			file_put_contents('logs/log_' . $email .'.html', $message, FILE_APPEND | LOCK_EX);
 
