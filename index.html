@@ -24,6 +24,9 @@
         <div class="header">
             <h6>Let's Chat - Online</h6>
         </div>
+        <a href="javascript:void(0);"class="list-group-item lblControl d-none">
+            <span><i class="fa fa-power-off"></i> Finish chatting</span>
+        </a>
         <div class="text-center p-2">
             <span class="lblWelcome">Please fill out the form to start chat!</span>
             <div id="chatLog" class="d-none"></div>
@@ -49,63 +52,95 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script type="text/javascript">
-    $(document).ready(function(){
-        $("#btnStart").on("click", function(){
-            $(".lblWelcome").addClass("d-none");
-            $("#divRegistro").addClass("d-none");
-            $("#divConversasion").removeClass("d-none");
-            $("#chatLog").removeClass("d-none");
+        var refreshLog = null;
 
-            sendMessage($("#inputInitialMessage").val(), 1);
+        $(document).ready(function(){
+            $("#btnStart").on("click", function(){
+                $(".lblWelcome").addClass("d-none");
+                $("#divRegistro").addClass("d-none");
+                $("#divConversasion").removeClass("d-none");
+                $("#chatLog").removeClass("d-none");
+                $(".lblControl").removeClass("d-none");
+
+                sendMessage($("#inputInitialMessage").val(), 1);
+            });
+
+            $("#btnSendmessage").on("click", function(){
+                sendMessage($("#inputNewMessage").val(), 2);
+            });
+
+            $(".lblControl").on("click", function(){
+                if (confirm('Do you really want to end the chat with tech support?')){
+                    $(".lblWelcome").removeClass("d-none");
+                    $("#divRegistro").removeClass("d-none");
+                    $("#divConversasion").addClass("d-none");
+                    $("#chatLog").addClass("d-none");
+                    $(".lblControl").addClass("d-none");
+
+                    $("#chatLog").html("");
+                    clearInterval(refreshLog);
+                    localStorage.removeItem("cliData");
+                }
+            });
+
+            let cliData = JSON.parse( localStorage.getItem("cliData") );
+            if(cliData){
+                $("#inputMail").val(cliData.mail);
+                $("#inputName").val(cliData.name);
+
+                $(".lblWelcome").addClass("d-none");
+                $("#divRegistro").addClass("d-none");
+                $("#divConversasion").removeClass("d-none");
+                $("#chatLog").removeClass("d-none");
+                $(".lblControl").removeClass("d-none");
+
+                refreshLog = setInterval(loadLog, 2500);
+            }
         });
 
-        $("#btnSendmessage").on("click", function(){
-            sendMessage($("#inputNewMessage").val(), 2);
-        });
-    });
+        function sendMessage(strMessage, round){
+            let dt = new Date(),
+                time = dt.getHours() + ":" + dt.getMinutes();
 
-    function sendMessage(strMessage, round){
-        let dt = new Date(),
-            time = dt.getHours() + ":" + dt.getMinutes();
+            let objData = {
+                message: strMessage,
+                email: $("#inputMail").val(),
+                name: $("#inputName").val(),
+                round: round,
+                _method: "POST",
+                _time: time
+            };
 
-        let objData = {
-            message: strMessage,
-            email: $("#inputMail").val(),
-            name: $("#inputName").val(),
-            round: round,
-            _method: "POST",
-            _time: time
-        };
+            $.post("core/request.php", objData);
 
-        $.post("core/request.php", objData);
+            if(round == 1){
+                localStorage.setItem("cliData", JSON.stringify({name: $("#inputName").val(), mail: $("#inputMail").val()}));
+                $("#inputInitialMessage").val("");
+                refreshLog = setInterval(loadLog, 2500);
+            }else{
+                $("#inputNewMessage").val("");
+            }
 
-        if(round == 1){
-            $("#inputInitialMessage").val("");
-            setInterval(loadLog, 2500);
-        }else{
-            $("#inputNewMessage").val("");
+            loadLog();
+            return false;
         }
 
-        loadLog();
-        return false;
-    }
+        function loadLog(){
+            let objData = {
+                email: $("#inputMail").val(),
+                name: $("#inputName").val(),
+                _method: "GET"
+            },
+            oldscrollHeight = $("#chatLog")[0].scrollHeight - 20;
 
-    function loadLog(){
-        let objData = {
-            email: $("#inputMail").val(),
-            name: $("#inputName").val(),
-            _method: "GET"
-        },
-        oldscrollHeight = $("#chatLog")[0].scrollHeight - 20;
+            $.post("core/request.php", objData, function(result) {
+                $("#chatLog").html(result);
 
-        $.post("core/request.php", objData, function(result) {
-            $("#chatLog").html(result);
-
-            let newscrollHeight = $("#chatLog")[0].scrollHeight - 20;
-            if(newscrollHeight > oldscrollHeight)
-                $("#chatLog").animate({ scrollTop: newscrollHeight }, 'normal');
-        });
-    }
+                let newscrollHeight = $("#chatLog")[0].scrollHeight - 20;
+                if(newscrollHeight > oldscrollHeight)
+                    $("#chatLog").animate({ scrollTop: newscrollHeight }, 'normal');
+            });
+        }
     </script>
 </body>
 </html>
