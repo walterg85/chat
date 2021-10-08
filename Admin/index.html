@@ -13,6 +13,15 @@
 
     <title>Chat Support</title>
 </head>
+<style type="text/css">
+    #chatLog {
+        margin: 0 auto;
+        padding: 10px;
+        height: 350px;
+        width: 100%;
+        overflow: auto;
+    }
+</style>
 <body>
 
     <div class="container">
@@ -26,20 +35,20 @@
             <div class="col-4">
                 <div class="list-group" id="chatList"></div>
                 <!-- Item chat to clone  -->
-                <a href="javascript:void(0);" class="list-group-item list-group-item-action d-none itemClone">
+                <a href="javascript:void(0);" class="list-group-item list-group-item-action d-none itemClone itemChatList">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1 cliName">Name</h5>
-                        <small class="text-muted cliDate">3 days ago</small>
+                        <small class="txtm cliDate">3 days ago</small>
                     </div>
                     <p class="mb-1 cliMessage">Message.</p>
-                    <small class="text-muted cliMail">Mail.</small>
+                    <small class="txtm cliMail">Mail.</small>
                 </a>
             </div>
             <div class="col-8 d-none" id="chatDetails">
-                <div id="chatLog" class="d-none" width="100%"></div>
+                <div id="chatLog" class=""></div>
                 <form class="row g-3">
                     <div class="col-10">
-                        <label for="txtMessage" class="form-label">Message</label>
+                        <label for="txtMessage" class="form-label">New message</label>
                         <textarea class="form-control" id="txtMessage" rows="3"></textarea>
                     </div>
                     <div class="col-2 pt-5">
@@ -65,7 +74,8 @@
 
     function loadChats(){
         let objData = {
-            _method: "GET"
+            _method: "GET",
+            _action: "getList"
         };
 
         $.post("../core/admRequest.php", objData, function(result) {
@@ -79,8 +89,31 @@
                     chat.find(".cliMessage").html(item.message);
                     chat.find(".cliMail").html(item.mail);
 
+                    chat.data("chatlog", item.logFile);
+
                     chat.removeClass("itemClone d-none");
                     $(chat).appendTo("#chatList");
+                });
+
+                $(".itemChatList").on("click", function(){
+                    objData = {
+                        _method: "GET",
+                        _file: $(this).data("chatlog"),
+                        _action: "getChat"
+                    };
+
+                    $.post("../core/admRequest.php", objData, function(result) {
+                        $("#chatLog").html(result);
+                        $("#chatDetails").removeClass("d-none");
+
+                        $("#chatLog").animate({ scrollTop: 1000 }, 'normal');
+                    });
+
+                    $(".active").find(".txtm").addClass("text-muted");
+                    $(".active").removeClass("active");
+
+                    $(this).addClass("active");
+                    $(this).find(".txtm").removeClass("text-muted");
                 });
             }else{
                 $("#chatList").html(`<p class="lead">No chats available at the moment</p>`);
