@@ -1,6 +1,5 @@
 <?php
 	session_start();
-	date_default_timezone_set('America/Mexico_City');
 
 	header("Access-Control-Allow-Origin: *");
 	header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
@@ -24,7 +23,7 @@
 					<h6 class="alert-heading">'. $put_vars['name'] .'</h6>
 					<p>'. stripslashes(htmlspecialchars($put_vars["message"])) .'.</p>
 					<hr class="m-0">
-					<p class="mb-0 small">'. date("g:i A") .' | '. $email .'</p>
+					<p class="mb-0 small">'. $put_vars["_time"] .' | '. $email .'</p>
 				</div>
 			';
 
@@ -33,14 +32,14 @@
 					<input type="hidden" id="inputName" value="'. $put_vars['name'] .'" />
 					<input type="hidden" id="inputMail" value="'. $email .'" />
 					<input type="hidden" id="inputQuestion" value="'. stripslashes(htmlspecialchars($put_vars["message"])) .'" />
-					<input type="hidden" id="inputDate" value="'. date("g:i A") .'" />
+					<input type="hidden" id="inputDate" value="'. $put_vars["_time"] .'" />
 
 					<figure class="text-end">
 						<blockquote class="blockquote">
 						<p class="small">I am a virtual assistant, In a moment an agent will take your case, do not hesitate to continue writing.</p>
 						</blockquote>
 						<figcaption class="blockquote-footer">
-						'. date("g:i A") .' | Virtual assistant
+						'. $put_vars["_time"] .' | Virtual assistant
 						</figcaption>
 					</figure>
 				';
