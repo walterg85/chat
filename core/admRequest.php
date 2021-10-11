@@ -59,7 +59,7 @@
 					$closed	= $xpath->query('//input[@type="hidden" and @id = "inputClose"]/@value');
 
 					$response = array(
-						'closed' => ($closed[0]->nodeValue) ? $closed[0]->nodeValue : NULL,
+						'closed' => (count($closed) > 0) ? $closed[0]->nodeValue : NULL,
 						'html'   => $contenido
 					);
 				}
@@ -91,11 +91,11 @@
 					mkdir('logs/olds', 0777, true);
 
 				sleep(3);
-				rename($put_vars['_file'], str_replace('logs/', 'logs/olds/'. date('g_i_A'), $put_vars['_file']));
+				rename($put_vars['_file'], str_replace('logs/', 'logs/olds/'. date('g_i_A'). '_', $put_vars['_file']));
 
 				header('HTTP/1.1 200 OK');
 				exit();
-			}else{
+			}else if($put_vars['_action'] == 'responseChat'){
 				$email   = 'support@itelatlas.com';
 				$name	   = 'Technical support';
 				$message = '
@@ -110,6 +110,62 @@
 				';
 
 				file_put_contents($put_vars['_file'], $message, FILE_APPEND | LOCK_EX);
+
+				header('HTTP/1.1 200 OK');
+				exit();
+			}else if ($put_vars['_action'] == 'moveChat') {
+				if( !is_dir('logs/olds') )
+					mkdir('logs/olds', 0777, true);
+
+				rename($put_vars['_file'], str_replace('logs/', 'logs/olds/'. date('g_i_A') . '_', $put_vars['_file']));
+
+				header('HTTP/1.1 200 OK');
+				exit();
+			}else if($put_vars['_action'] == 'sendChat'){
+				$email   = 'support@itelatlas.com';
+				$name	 = 'Technical support';
+				$message = '
+					<input type="hidden" id="inputClose" value="'. $put_vars["_time"] .'" />
+					<figure class="text-end">
+						<blockquote class="blockquote">
+						<p class="small text-danger">Technical support decided to end the chat because it marked the issue as resolved.</p>
+						</blockquote>
+						<figcaption class="blockquote-footer">
+						'. $put_vars["_time"] .' | '. $name .'
+						</figcaption>
+					</figure>
+				';
+
+				file_put_contents($put_vars['_file'], $message, FILE_APPEND | LOCK_EX);
+
+				if( !is_dir('logs/olds') )
+					mkdir('logs/olds', 0777, true);
+
+				require_once "PHPMailer/Exception.php";
+				require_once "PHPMailer/PHPMailer.php";
+				require_once "PHPMailer/SMTP.php";
+
+				// $mail = new PHPMailer\PHPMailer\PHPMailer();
+				// $mail->isSMTP();
+				// $mail->Host         = 'smtp...';
+				// $mail->SMTPAuth     = true;
+				// $mail->Username     = 'Correo saliente';
+				// $mail->Password     = 'Contraseña';
+				// $mail->SMTPSecure   = 'tls';
+				// $mail->Port         = 587;
+				// $mail->CharSet      = "UTF-8";
+				// $mail->setFrom('@mail.com', 'Nombre');
+
+				// $mail->addAddress('quien_recibe@mail.com');
+				// $mail->Subject = 'Chat de soporte finalizado';
+				// $mail->isHTML(true);
+				// $mail->Body = 'Se finalizo el chat, se adjunta para su revisión';
+				// $mail->addAttachment( $put_vars['_file'] );
+
+				// $mail->Send()
+
+				sleep(3);
+				rename($put_vars['_file'], str_replace('logs/', 'logs/olds/'. date('g_i_A'). '_', $put_vars['_file']));
 
 				header('HTTP/1.1 200 OK');
 				exit();
