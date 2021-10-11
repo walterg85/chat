@@ -152,6 +152,12 @@
                 let newscrollHeight = $("#chatLog")[0].scrollHeight - 20;
                 if(newscrollHeight > oldscrollHeight)
                     $("#chatLog").animate({ scrollTop: newscrollHeight }, 'normal');
+
+                let isClose = $("#inputClose").val();
+                if(isClose){
+                    clearInterval(refreshLog);
+                    localStorage.removeItem("cliData");
+                }
             });
         }
     </script>
