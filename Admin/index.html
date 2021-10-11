@@ -47,7 +47,7 @@
             <div class="col-8 d-none" id="chatDetails">
 
                 <div class="btn-group ms-2 mb-2" role="group">
-                    <button type="button" class="btn btn-outline-secondary"><i class="fa fa-power-off"></i> Finish chatting</button>
+                    <button type="button" class="btn btn-outline-secondary" id="btnFinalizar"><i class="fa fa-power-off"></i> Finish chatting</button>
                     <button type="button" class="btn btn-outline-secondary"><i class="fa fa-bookmark-o"></i> Move to file</button>
                     <button type="button" class="btn btn-outline-secondary"><i class="fa fa-envelope-open-o"></i> Send by email</button>
                 </div>                
@@ -90,7 +90,8 @@
                 chatActive = {
                     _method: "GET",
                     _file: $(this).data("chatlog"),
-                    _action: "getChat"
+                    _action: "getChat",
+                    _current: $(this).data("chatmail")
                 };
 
                 loadLog();
@@ -105,6 +106,32 @@
 
             $("#btnSend").on("click", function(){
                 sendMessage($("#txtMessage").val());
+            });
+
+            $("#btnFinalizar").on("click", function(){
+                if (confirm(`Do you really want to end the chat with ${chatActive._current}?`)){
+                    $(".active").find(".txtm").addClass("text-muted");
+                    $(".active").removeClass("active");
+
+                    clearInterval(refreshLog);
+
+                    $("#chatLog").html("");
+                    $("#chatDetails").addClass("d-none");
+
+                    let dt = new Date(),
+                        time = dt.getHours() + ":" + dt.getMinutes();
+
+                    let objData = {
+                        _method: "POST",
+                        _action: "closeChat",
+                        _time: time,
+                        _file: chatActive._file
+                    };
+
+                    $.post("../core/admRequest.php", objData);
+
+                    chatActive._file = "";                    
+                }
             });
         });
 
@@ -126,6 +153,7 @@
                         chat.find(".cliMail").html(item.mail);
 
                         chat.data("chatlog", item.logFile);
+                        chat.data("chatmail", item.mail);
 
                         chat.removeClass("itemClone d-none");
 
@@ -171,7 +199,8 @@
                 message: strMessage,
                 _method: "POST",
                 _time: time,
-                _file: chatActive._file
+                _file: chatActive._file,
+                _action: "responseChat",
             };
 
             $.post("../core/admRequest.php", objData);

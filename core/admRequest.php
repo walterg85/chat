@@ -70,23 +70,50 @@
 				exit(json_encode($response));
 			}
 		}else if($put_vars['_method'] == 'POST'){
-			$email   = 'support@itelatlas.com';
-			$name	   = 'Technical support';
-			$message = '
-				<figure class="text-end">
-					<blockquote class="blockquote">
-					<p class="small">'. stripslashes(htmlspecialchars($put_vars["message"])) .'</p>
-					</blockquote>
-					<figcaption class="blockquote-footer">
-					'. $put_vars["_time"] .' | '. $name .'
-					</figcaption>
-				</figure>
-			';
+			if ($put_vars['_action'] == 'closeChat') {
+				$email   = 'support@itelatlas.com';
+				$name	 = 'Technical support';
+				$message = '
+					<input type="hidden" id="inputClose" value="'. $put_vars["_time"] .'" />
+					<figure class="text-end">
+						<blockquote class="blockquote">
+						<p class="small text-danger">Technical support decided to end the chat because it marked the issue as resolved.</p>
+						</blockquote>
+						<figcaption class="blockquote-footer">
+						'. $put_vars["_time"] .' | '. $name .'
+						</figcaption>
+					</figure>
+				';
 
-			file_put_contents($put_vars['_file'], $message, FILE_APPEND | LOCK_EX);
+				file_put_contents($put_vars['_file'], $message, FILE_APPEND | LOCK_EX);
 
-			header('HTTP/1.1 200 OK');
-			exit();
+				if( !is_dir('logs/olds') )
+					mkdir('logs/olds', 0777, true);
+
+				sleep(3);
+				rename($put_vars['_file'], str_replace('logs/', 'logs/olds/'. date('g_i_A'), $put_vars['_file']));
+
+				header('HTTP/1.1 200 OK');
+				exit();
+			}else{
+				$email   = 'support@itelatlas.com';
+				$name	   = 'Technical support';
+				$message = '
+					<figure class="text-end">
+						<blockquote class="blockquote">
+						<p class="small">'. stripslashes(htmlspecialchars($put_vars["message"])) .'</p>
+						</blockquote>
+						<figcaption class="blockquote-footer">
+						'. $put_vars["_time"] .' | '. $name .'
+						</figcaption>
+					</figure>
+				';
+
+				file_put_contents($put_vars['_file'], $message, FILE_APPEND | LOCK_EX);
+
+				header('HTTP/1.1 200 OK');
+				exit();
+			}
 		}
 	}
 
