@@ -33,7 +33,6 @@
 
 				header('HTTP/1.1 200 OK');
 				exit();
-
 			}else{
 				$email   = $put_vars['email'];
 				$round   = $put_vars['round'];
@@ -64,6 +63,28 @@
 					';
 
 				file_put_contents('logs/log_' . $email .'.html', $message, FILE_APPEND | LOCK_EX);
+
+				// require_once "PHPMailer/Exception.php";
+				// require_once "PHPMailer/PHPMailer.php";
+				// require_once "PHPMailer/SMTP.php";
+
+				// $mail = new PHPMailer\PHPMailer\PHPMailer();
+				// $mail->isSMTP();
+				// $mail->Host         = 'smtp...';
+				// $mail->SMTPAuth     = true;
+				// $mail->Username     = 'Correo saliente';
+				// $mail->Password     = 'Contraseña';
+				// $mail->SMTPSecure   = 'tls';
+				// $mail->Port         = 587;
+				// $mail->CharSet      = "UTF-8";
+				// $mail->setFrom('@mail.com', 'Nombre');
+
+				// $mail->addAddress('quien_recibe@mail.com');
+				// $mail->Subject = 'Nueco chat de soporte';
+				// $mail->isHTML(true);
+				// $mail->Body = 'Hay un nuevo chat de soporte que debes de atender';
+
+				// $mail->Send()
 
 				header('HTTP/1.1 200 OK');
 				exit();
