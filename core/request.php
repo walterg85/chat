@@ -10,11 +10,14 @@
 		if($put_vars['_method'] == 'GET'){
 			$logFile = 'logs/log_' . $put_vars['email'] .'.html';
 
-			if(file_exists($logFile) && filesize($logFile) > 0)
+			if(file_exists($logFile) && filesize($logFile) > 0){
 				echo file_get_contents($logFile);
-
-			header('HTTP/1.1 200 OK');
-			exit();			
+				header('HTTP/1.1 200 OK');
+				exit();
+			}else{
+				header('HTTP/1.1 400 Bad Request');
+				exit();
+			}					
 		}else if($put_vars['_method'] == 'POST'){
 			if($put_vars['_action'] == 'closeChat'){
 				$email   = $put_vars['email'];
