@@ -158,6 +158,16 @@
                     clearInterval(refreshLog);
                     localStorage.removeItem("cliData");
                 }
+            }).fail(function() {
+                $(".lblWelcome").removeClass("d-none");
+                $("#divRegistro").removeClass("d-none");
+                $("#divConversasion").addClass("d-none");
+                $("#chatLog").addClass("d-none");
+                $(".lblControl").addClass("d-none");
+
+                $("#chatLog").html("");
+                clearInterval(refreshLog);
+                localStorage.removeItem("cliData");
             });
         }
     </script>

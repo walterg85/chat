@@ -48,8 +48,8 @@
 
                 <div class="btn-group ms-2 mb-2" role="group">
                     <button type="button" class="btn btn-outline-secondary" id="btnFinalizar"><i class="fa fa-power-off"></i> Finish chatting</button>
-                    <button type="button" class="btn btn-outline-secondary"><i class="fa fa-bookmark-o"></i> Move to file</button>
-                    <button type="button" class="btn btn-outline-secondary"><i class="fa fa-envelope-open-o"></i> Send by email</button>
+                    <button type="button" class="btn btn-outline-secondary" id="btnMovechat" disabled="disabled"><i class="fa fa-bookmark-o"></i> Move to file</button>
+                    <button type="button" class="btn btn-outline-secondary" id="btnFinalizechat"><i class="fa fa-envelope-open-o"></i> Finish and Send by email</button>
                 </div>                
 
                 <div id="chatLog" class=""></div>
@@ -133,6 +133,58 @@
                     chatActive._file = "";                    
                 }
             });
+
+            $("#btnMovechat").on("click", function(){
+                if (confirm(`Are you sure to move the chat to finished?`)){
+                    $(".active").find(".txtm").addClass("text-muted");
+                    $(".active").removeClass("active");
+
+                    clearInterval(refreshLog);
+
+                    $("#chatLog").html("");
+                    $("#chatDetails").addClass("d-none");
+
+                    let dt = new Date(),
+                        time = dt.getHours() + ":" + dt.getMinutes();
+
+                    let objData = {
+                        _method: "POST",
+                        _action: "moveChat",
+                        _file: chatActive._file
+                    };
+
+                    $.post("../core/admRequest.php", objData);
+
+                    chatActive._file = "";
+                    $("#btnMovechat").attr("disabled", "disabled");
+                }
+            });
+
+            $("#btnFinalizechat").on("click", function(){
+                if (confirm(`Do you really want to finish the chat with ${chatActive._current} and send the file by email?`)){
+                    $(".active").find(".txtm").addClass("text-muted");
+                    $(".active").removeClass("active");
+
+                    clearInterval(refreshLog);
+
+                    $("#chatLog").html("");
+                    $("#chatDetails").addClass("d-none");
+
+                    let dt = new Date(),
+                        time = dt.getHours() + ":" + dt.getMinutes();
+
+                    let objData = {
+                        _method: "POST",
+                        _action: "sendChat",
+                        _time: time,
+                        _file: chatActive._file
+                    };
+
+                    $.post("../core/admRequest.php", objData);
+
+                    chatActive._file = "";                    
+                }
+            });
         });
 
         function loadChats(){
@@ -170,7 +222,7 @@
             });
         }
 
-        function loadLog(objData) {
+        function loadLog() {
             let oldscrollHeight = $("#chatLog")[0].scrollHeight - 20;
 
             $.post("../core/admRequest.php", chatActive, function(result) {
@@ -184,9 +236,13 @@
                 if(result.closed){
                     $("#txtMessage").attr("disabled", "disabled");
                     $("#btnSend").attr("disabled", "disabled");
+                    $("#btnMovechat").removeAttr("disabled");
+                    $("#btnFinalizar").attr("disabled", "disabled");
                 }else{
                     $("#txtMessage").removeAttr("disabled");
                     $("#btnSend").removeAttr("disabled");
+                    $("#btnMovechat").attr("disabled", "disabled");
+                    $("#btnFinalizar").removeAttr("disabled");
                 }
             });
         }
