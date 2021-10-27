@@ -59,7 +59,7 @@
 					$closed	= $xpath->query('//input[@type="hidden" and @id = "inputClose"]/@value');
 
 					$response = array(
-						'closed' => ($closed[0]->nodeValue) ? $closed[0]->nodeValue : NULL,
+						'closed' => (count($closed) > 0) ? $closed[0]->nodeValue : NULL,
 						'html'   => $contenido
 					);
 				}
