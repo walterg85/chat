@@ -7,21 +7,24 @@
 	if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		parse_str(file_get_contents("php://input"), $put_vars);
 
+		$directorio = dirname(__FILE__, 1) . "/logs";
+		if( !is_dir($directorio) )
+			mkdir($directorio, 0777, true);
+
 		if($put_vars['_method'] == 'GET'){
 			$logFile = 'logs/log_' . $put_vars['email'] .'.html';
 
 			if(file_exists($logFile) && filesize($logFile) > 0){
 				echo file_get_contents($logFile);
 				header('HTTP/1.1 200 OK');
-				exit();
 			}else{
 				header('HTTP/1.1 400 Bad Request');
-				exit();
-			}					
+			}
+
+			exit();
 		}else if($put_vars['_method'] == 'POST'){
 			if($put_vars['_action'] == 'closeChat'){
 				$email   = $put_vars['email'];
-
 				$message = '
 					<input type="hidden" id="inputClose" value="'. $put_vars["_time"] .'" />
 					<div class="alert alert-info" role="alert">
@@ -33,7 +36,6 @@
 				';
 
 				file_put_contents('logs/log_' . $email .'.html', $message, FILE_APPEND | LOCK_EX);
-
 				header('HTTP/1.1 200 OK');
 				exit();
 			}else{
@@ -60,34 +62,36 @@
 							<p class="small">I am a virtual assistant, In a moment an agent will take your case, do not hesitate to continue writing.</p>
 							</blockquote>
 							<figcaption class="blockquote-footer">
-							'. $put_vars["_time"] .' | Virtual assistant
+								'. $put_vars["_time"] .' | Virtual assistant
 							</figcaption>
 						</figure>
 					';
 
 				file_put_contents('logs/log_' . $email .'.html', $message, FILE_APPEND | LOCK_EX);
 
-				// require_once "PHPMailer/Exception.php";
-				// require_once "PHPMailer/PHPMailer.php";
-				// require_once "PHPMailer/SMTP.php";
+				/*Habilitarlo cuando se tenga el host on line
+				require_once "PHPMailer/Exception.php";
+				require_once "PHPMailer/PHPMailer.php";
+				require_once "PHPMailer/SMTP.php";
+							
+				$mail = new PHPMailer\PHPMailer\PHPMailer();
+				$mail->isSMTP();
+				$mail->Host         = 'smtp...';
+				$mail->SMTPAuth     = true;
+				$mail->Username     = 'Correo saliente';
+				$mail->Password     = 'Contraseña';
+				$mail->SMTPSecure   = 'tls';
+				$mail->Port         = 587;
+				$mail->CharSet      = "UTF-8";
+				$mail->setFrom('@mail.com', 'Nombre');
 
-				// $mail = new PHPMailer\PHPMailer\PHPMailer();
-				// $mail->isSMTP();
-				// $mail->Host         = 'smtp...';
-				// $mail->SMTPAuth     = true;
-				// $mail->Username     = 'Correo saliente';
-				// $mail->Password     = 'Contraseña';
-				// $mail->SMTPSecure   = 'tls';
-				// $mail->Port         = 587;
-				// $mail->CharSet      = "UTF-8";
-				// $mail->setFrom('@mail.com', 'Nombre');
+				$mail->addAddress('quien_recibe@mail.com');
+				$mail->Subject = 'Nueco chat de soporte';
+				$mail->isHTML(true);
+				$mail->Body = 'Hay un nuevo chat de soporte que debes de atender';
 
-				// $mail->addAddress('quien_recibe@mail.com');
-				// $mail->Subject = 'Nueco chat de soporte';
-				// $mail->isHTML(true);
-				// $mail->Body = 'Hay un nuevo chat de soporte que debes de atender';
-
-				// $mail->Send()
+				$mail->Send()
+				*/
 
 				header('HTTP/1.1 200 OK');
 				exit();

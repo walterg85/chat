@@ -7,10 +7,18 @@
 	if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		parse_str(file_get_contents("php://input"), $put_vars);
 
+		$directorio = dirname(__FILE__, 1) . "/logs";
+		if( !is_dir($directorio) )
+			mkdir($directorio, 0777, true);
+
+		$directorio = dirname(__FILE__, 1) . "/logs/olds";
+		if( !is_dir($directorio) )
+			mkdir($directorio, 0777, true);
+
 		if($put_vars['_method'] == 'GET'){
 			if($put_vars['_action'] == 'getList'){
-				$chatLogs = getChatsLogs('logs/');
-				$data = [];
+				$chatLogs 	= getChatsLogs('logs/');
+				$data 		= [];
 
 				foreach ($chatLogs as $key => $value) {
 					if(file_exists($value) && filesize($value) > 0){
@@ -38,23 +46,22 @@
 
 				header('HTTP/1.1 200 OK');
 				header("Content-Type: application/json; charset=UTF-8");
-
 				exit(json_encode($data));
 			}else if($put_vars['_action'] == 'getChat'){
-				$logFile = $put_vars['_file'];
-
-				$response = array(
+				$logFile 	= $put_vars['_file'];
+				$response 	= array(
 					'closed' => NULL,
 					'html'   => ''
 				);
 
 				if(file_exists($logFile) && filesize($logFile) > 0){
-					$contenido = file_get_contents($logFile);
+					$contenido 	= file_get_contents($logFile);
+					$doc 		= new DOMDocument;
 
-					$doc 	= new DOMDocument;
 					libxml_use_internal_errors(true);
 					$doc->loadHTML($contenido);
 					libxml_clear_errors();
+
 					$xpath 	= new DOMXpath($doc);
 					$closed	= $xpath->query('//input[@type="hidden" and @id = "inputClose"]/@value');
 
@@ -66,7 +73,6 @@
 
 				header('HTTP/1.1 200 OK');
 				header("Content-Type: application/json; charset=UTF-8");
-
 				exit(json_encode($response));
 			}
 		}else if($put_vars['_method'] == 'POST'){
@@ -80,45 +86,36 @@
 						<p class="small text-danger">Technical support decided to end the chat because it marked the issue as resolved.</p>
 						</blockquote>
 						<figcaption class="blockquote-footer">
-						'. $put_vars["_time"] .' | '. $name .'
+							'. $put_vars["_time"] .' | '. $name .'
 						</figcaption>
 					</figure>
 				';
 
 				file_put_contents($put_vars['_file'], $message, FILE_APPEND | LOCK_EX);
 
-				if( !is_dir('logs/olds') )
-					mkdir('logs/olds', 0777, true);
-
 				sleep(3);
 				rename($put_vars['_file'], str_replace('logs/', 'logs/olds/'. date('g_i_A'). '_', $put_vars['_file']));
-
 				header('HTTP/1.1 200 OK');
 				exit();
 			}else if($put_vars['_action'] == 'responseChat'){
-				$email   = 'support@itelatlas.com';
-				$name	   = 'Technical support';
-				$message = '
+				$email   	= 'support@itelatlas.com';
+				$name	   	= 'Technical support';
+				$message 	= '
 					<figure class="text-end">
 						<blockquote class="blockquote">
 						<p class="small">'. stripslashes(htmlspecialchars($put_vars["message"])) .'</p>
 						</blockquote>
 						<figcaption class="blockquote-footer">
-						'. $put_vars["_time"] .' | '. $name .'
+							'. $put_vars["_time"] .' | '. $name .'
 						</figcaption>
 					</figure>
 				';
 
 				file_put_contents($put_vars['_file'], $message, FILE_APPEND | LOCK_EX);
-
 				header('HTTP/1.1 200 OK');
 				exit();
 			}else if ($put_vars['_action'] == 'moveChat') {
-				if( !is_dir('logs/olds') )
-					mkdir('logs/olds', 0777, true);
-
 				rename($put_vars['_file'], str_replace('logs/', 'logs/olds/'. date('g_i_A') . '_', $put_vars['_file']));
-
 				header('HTTP/1.1 200 OK');
 				exit();
 			}else if($put_vars['_action'] == 'sendChat'){
@@ -131,42 +128,40 @@
 						<p class="small text-danger">Technical support decided to end the chat because it marked the issue as resolved.</p>
 						</blockquote>
 						<figcaption class="blockquote-footer">
-						'. $put_vars["_time"] .' | '. $name .'
+							'. $put_vars["_time"] .' | '. $name .'
 						</figcaption>
 					</figure>
 				';
 
 				file_put_contents($put_vars['_file'], $message, FILE_APPEND | LOCK_EX);
 
-				if( !is_dir('logs/olds') )
-					mkdir('logs/olds', 0777, true);
-
+				/*Habilitarlo cuando se tenga el host on line
 				require_once "PHPMailer/Exception.php";
 				require_once "PHPMailer/PHPMailer.php";
 				require_once "PHPMailer/SMTP.php";
 
-				// $mail = new PHPMailer\PHPMailer\PHPMailer();
-				// $mail->isSMTP();
-				// $mail->Host         = 'smtp...';
-				// $mail->SMTPAuth     = true;
-				// $mail->Username     = 'Correo saliente';
-				// $mail->Password     = 'Contraseña';
-				// $mail->SMTPSecure   = 'tls';
-				// $mail->Port         = 587;
-				// $mail->CharSet      = "UTF-8";
-				// $mail->setFrom('@mail.com', 'Nombre');
+				$mail = new PHPMailer\PHPMailer\PHPMailer();
+				$mail->isSMTP();
+				$mail->Host         = 'smtp...';
+				$mail->SMTPAuth     = true;
+				$mail->Username     = 'Correo saliente';
+				$mail->Password     = 'Contraseña';
+				$mail->SMTPSecure   = 'tls';
+				$mail->Port         = 587;
+				$mail->CharSet      = "UTF-8";
+				$mail->setFrom('@mail.com', 'Nombre');
 
-				// $mail->addAddress('quien_recibe@mail.com');
-				// $mail->Subject = 'Chat de soporte finalizado';
-				// $mail->isHTML(true);
-				// $mail->Body = 'Se finalizo el chat, se adjunta para su revisión';
-				// $mail->addAttachment( $put_vars['_file'] );
+				$mail->addAddress('quien_recibe@mail.com');
+				$mail->Subject = 'Chat de soporte finalizado';
+				$mail->isHTML(true);
+				$mail->Body = 'Se finalizo el chat, se adjunta para su revisión';
+				$mail->addAttachment( $put_vars['_file'] );
 
-				// $mail->Send()
+				$mail->Send()
+				*/
 
 				sleep(3);
 				rename($put_vars['_file'], str_replace('logs/', 'logs/olds/'. date('g_i_A'). '_', $put_vars['_file']));
-
 				header('HTTP/1.1 200 OK');
 				exit();
 			}
@@ -194,5 +189,4 @@
 		'codeResponse' => 400,
 		'message' => 'Bad Request'
 	);
-
 	exit( json_encode($response) );
