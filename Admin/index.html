@@ -50,7 +50,7 @@
                     <button type="button" class="btn btn-outline-secondary" id="btnFinalizar"><i class="fa fa-power-off"></i> <text class="btnFinish">Finish chatting</text></button>
                     <button type="button" class="btn btn-outline-secondary" id="btnMovechat" disabled="disabled"><i class="fa fa-bookmark-o"></i> <text class="btnMovetoFile">Move to file</text></button>
                     <button type="button" class="btn btn-outline-secondary" id="btnFinalizechat"><i class="fa fa-envelope-open-o"></i> <text class="btnSenToMail">Finish and Send by email</text></button>
-                    <button type="button" class="btn btn-outline-secondary">Español</button>
+                    <button type="button" class="btn btn-outline-secondary changeLang">Español</button>
                 </div>                
 
                 <div id="chatLog" class=""></div>
@@ -78,7 +78,8 @@
 
     <script type="text/javascript">
         var chatActive = "",
-            refreshLog = null;
+            refreshLog = null,
+            lang       = (window.navigator.language).substring(0,2);
 
         $(document).ready(function(){
             loadChats();
@@ -186,6 +187,25 @@
                     chatActive._file = "";                    
                 }
             });
+
+            if( localStorage.getItem("currentLag") ){
+                lang = localStorage.getItem("currentLag");
+            }else{
+                localStorage.setItem("currentLag", lang);
+            }
+
+            $(".changeLang").click( function(){
+                if (localStorage.getItem("currentLag") == "es") {
+                    localStorage.setItem("currentLag", "en");
+                    lang = "en";
+                }else{
+                    localStorage.setItem("currentLag", "es");
+                    lang = "es";
+                }
+                switchLanguage(lang);
+            });
+
+            switchLanguage(lang);
         });
 
         function loadChats(){
@@ -263,6 +283,21 @@
             $.post("../core/admRequest.php", objData);
             $("#txtMessage").val("");
             return false;
+        }
+
+        function switchLanguage(lang){
+            $.post("../assets/language.json", {}, function(data) {
+                $(".changeLang").html('<i class="fa fa-globe"></i> ' + data[lang]["buttonText"]);
+                
+                let myLang = data[lang]["admin"];
+
+                $(".pageTitle").html(myLang.pageTitle);
+                $(".btnFinish").html(myLang.btnFinish);
+                $(".btnMovetoFile").html(myLang.btnMovetoFile);
+                $(".btnSenToMail").html(myLang.btnSenToMail);
+                $(".labelMesage").html(myLang.labelMesage);
+                $(".btnSend").html(myLang.btnSend);                
+            });
         }
     </script>
 </body>
