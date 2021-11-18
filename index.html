@@ -19,7 +19,6 @@
 <body oncontextmenu='return false' class='snippet-body'>
     <button class="btn btn-secondary changeLang">Español</button>
 
-
     <input type="checkbox" id="check"><label class="chat-btn" for="check"><i class="fa fa-commenting-o comment"></i><i class="fa fa-close close"></i></label>
     <div class="wrapper">
         <div class="header">
@@ -53,11 +52,17 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script type="text/javascript">
-        var refreshLog  = null,
-            lang        = (window.navigator.language).substring(0,2);
+        var refreshLog          = null,
+            lang                = (window.navigator.language).substring(0,2),
+            intervalContador    = null, // Contador para establecer los 20 segundos para lanzar el chat
+            contador            = 0;
 
         $(document).ready(function(){
             $("#btnStart").on("click", function(){
+                // Validar que se hayan ingresado todos los datos adecuadamente
+                if(($("#inputMail").val()).length == 0 || ($("#inputName").val()).length == 0 || ($("#inputInitialMessage").val()).length == 0)
+                    return false;
+
                 $(".lblWelcome").addClass("d-none");
                 $("#divRegistro").addClass("d-none");
                 $("#divConversasion").removeClass("d-none");
@@ -109,7 +114,20 @@
                 $("#chatLog").removeClass("d-none");
                 $(".lblControl").removeClass("d-none");
 
+                loadLog();
                 refreshLog = setInterval(loadLog, 2500);
+            }else{
+                intervalContador = setInterval( function(){
+                    // Incrementar el contador en 1
+                    contador += 1;
+
+                    // Verificar si pasaron los 20 segundos, detener el contador y mostrar el formulario del chat
+                    if(contador > 20){
+                        clearInterval(intervalContador);
+                        $(".chat-btn").click();
+                    }
+
+                }, 1000);
             }
 
             if( localStorage.getItem("currentLag") ){
