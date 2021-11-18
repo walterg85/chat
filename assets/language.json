@@ -1,0 +1,46 @@
+{
+	"en":{
+		"buttonText": "Español",
+		"home":{
+			"chatTitle":"Let's Chat - Online",
+			"chatSubTitle": "Please fill out the form to start chat!",
+			"inputName": "Name",
+			"inputMail": "Email",
+			"inputInitialMessage": "Your Text Message",
+			"btnStart": "Submit",
+			"btnSendmessage":"Send",
+			"inputNewMessage": "Your Message",
+			"labelFinish": "Finish chatting"
+		},
+		"admin":{
+			"pageTitle": "Welcome to chat support!",
+			"btnFinish": "Finish chatting",
+			"btnMovetoFile": "Move to fila",
+			"btnSenToMail": "Finish and send by email",
+			"labelMesage": "New Message",
+			"btnSend": "Send"
+		}
+	},
+	"es":{
+		"buttonText": "English",
+		"home":{
+			"chatTitle":"Vamos a charlar - en línea",
+			"chatSubTitle": "¡Complete el formulario para comenzar a chatear!",
+			"inputName": "Nombre",
+			"inputMail": "Correo electronico",
+			"inputInitialMessage": "Tu mensaje de texto",
+			"btnStart": "Enviar",
+			"btnSendmessage":"Enviar mensaje",
+			"inputNewMessage": "Tu mensaje",
+			"labelFinish": "Terminar de charlar"
+		},
+		"admin":{
+			"pageTitle": "¡Bienvenido al soporte por chat!",
+			"btnFinish": "Terminar de charlar",
+			"btnMovetoFile": "Mover a archivo",
+			"btnSenToMail": "Terminar y enviar por correo electronico",
+			"labelMesage": "Nuevo mensaje",
+			"btnSend": "Enviar"
+		}
+	}
+}

@@ -17,15 +17,16 @@
     <title>Chat Support</title>
 </head>
 <body oncontextmenu='return false' class='snippet-body'>
-    <h1>Welcome to chat support!</h1>
+    <button class="btn btn-secondary changeLang">Español</button>
+
 
     <input type="checkbox" id="check"><label class="chat-btn" for="check"><i class="fa fa-commenting-o comment"></i><i class="fa fa-close close"></i></label>
     <div class="wrapper">
         <div class="header">
-            <h6>Let's Chat - Online</h6>
+            <h6 class="labelChatTitle">Let's Chat - Online</h6>
         </div>
         <a href="javascript:void(0);"class="list-group-item lblControl d-none">
-            <span><i class="fa fa-power-off"></i> Finish chatting</span>
+            <span><i class="fa fa-power-off"></i> <text class="labelFinish">Finish chatting</text></span>
         </a>
         <div class="text-center p-2">
             <span class="lblWelcome">Please fill out the form to start chat!</span>
@@ -52,7 +53,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script type="text/javascript">
-        var refreshLog = null;
+        var refreshLog  = null,
+            lang        = (window.navigator.language).substring(0,2);
 
         $(document).ready(function(){
             $("#btnStart").on("click", function(){
@@ -109,6 +111,25 @@
 
                 refreshLog = setInterval(loadLog, 2500);
             }
+
+            if( localStorage.getItem("currentLag") ){
+                lang = localStorage.getItem("currentLag");
+            }else{
+                localStorage.setItem("currentLag", lang);
+            }
+
+            $(".changeLang").click( function(){
+                if (localStorage.getItem("currentLag") == "es") {
+                    localStorage.setItem("currentLag", "en");
+                    lang = "en";
+                }else{
+                    localStorage.setItem("currentLag", "es");
+                    lang = "es";
+                }
+                switchLanguage(lang);
+            });
+
+            switchLanguage(lang);
         });
 
         function sendMessage(strMessage, round){
@@ -168,6 +189,24 @@
                 $("#chatLog").html("");
                 clearInterval(refreshLog);
                 localStorage.removeItem("cliData");
+            });
+        }
+
+        function switchLanguage(lang){
+            $.post("assets/language.json", {}, function(data) {
+                $(".changeLang").html('<i class="bi bi-globe2"></i> ' + data[lang]["buttonText"]);
+                
+                let myLang = data[lang]["home"];
+
+                $(".labelChatTitle").html(myLang.chatTitle);
+                $(".lblWelcome").html(myLang.chatSubTitle);
+                $("#inputName").attr("placeholder", myLang.inputName);
+                $("#inputMail").attr("placeholder", myLang.inputMail);
+                $("#inputInitialMessage").attr("placeholder", myLang.inputInitialMessage);
+                $("#btnStart").html(myLang.btnStart);
+                $("#inputNewMessage").attr("placeholder", myLang.inputNewMessage);
+                $("#btnSendmessage").html(myLang.btnSendmessage);
+                $(".labelFinish").html(myLang.labelFinish);
             });
         }
     </script>
